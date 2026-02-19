@@ -29,8 +29,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          PR_DATA=$(gh pr view ${{ inputs.pr_number }} \\
-            --json headRefName,headRefOid,author \\
+          PR_DATA=$(gh pr view ${{ inputs.pr_number }} \
+            --json headRefName,headRefOid,author \
             --repo ${{ github.repository }})
           echo "branch=$(echo "$PR_DATA" | jq -r '.headRefName')" >> "$GITHUB_OUTPUT"
           echo "sha=$(echo "$PR_DATA" | jq -r '.headRefOid')" >> "$GITHUB_OUTPUT"
@@ -58,8 +58,8 @@ jobs:
         run: |
           PR_SHA="${{ steps.pr-info.outputs.sha }}"
 
-          FAILED_CHECKS=$(gh api \\
-            "repos/${{ github.repository }}/commits/${PR_SHA}/check-runs" \\
+          FAILED_CHECKS=$(gh api \
+            "repos/${{ github.repository }}/commits/${PR_SHA}/check-runs" \
             --jq '[.check_runs[] | select(.conclusion == "failure") | {name: .name, id: .id, html_url: .html_url}]')
 
           {
