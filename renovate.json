@@ -1,0 +1,52 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:best-practices",
+    "group:recommended",
+    "group:monorepos",
+    ":prHourlyLimitNone"
+  ],
+  "enabled": true,
+  "prConcurrentLimit": 5,
+  "rebaseWhen": "conflicted",
+  "ignoreDeps": [
+    "python"
+  ],
+  "packageRules": [
+    {
+      "minimumReleaseAge": "3 days",
+      "matchPackageNames": [
+        "*"
+      ]
+    },
+    {
+      "matchDepTypes": [
+        "devDependencies",
+        "action",
+        "service",
+        "required_provider"
+      ],
+      "minimumReleaseAge": "3 days"
+    },
+    {
+      "matchUpdateTypes": "major",
+      "addLabels": [
+        "major"
+      ]
+    },
+    {
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "automerge": true
+    },
+    {
+      "matchDepTypes": [
+        "devDependencies",
+        "action"
+      ],
+      "automerge": true
+    }
+  ]
+}
