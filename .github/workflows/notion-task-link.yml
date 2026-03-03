@@ -1,0 +1,42 @@
+name: Notion Task Link
+on:
+  pull_request:
+    types: [opened]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  link:
+    runs-on: namespace-profile-ubuntu
+    if: >-
+      github.actor != 'renovate[bot]' &&
+      github.actor != 'dependabot[bot]'
+    steps:
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        env:
+          NOTION_TASK_PREFIX: ${{ vars.NOTION_TASK_PREFIX }}
+        with:
+          script: |
+            const prefix = process.env.NOTION_TASK_PREFIX;
+            if (!prefix) {
+              console.log('NOTION_TASK_PREFIX not set, skipping');
+              return;
+            }
+
+            const branch = context.payload.pull_request.head.ref;
+            const pattern = new RegExp(`${prefix}-(\\d+)`);
+            const match = branch.match(pattern);
+            if (!match) return;
+
+            const taskId = `${prefix}-${match[1]}`;
+            const body = context.payload.pull_request.body || '';
+
+            if (body.includes(taskId)) return;
+
+            await github.rest.pulls.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              body: `fix ${taskId}\n\n${body}`,
+            });
