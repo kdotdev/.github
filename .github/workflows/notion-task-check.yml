@@ -1,0 +1,43 @@
+name: Notion Task Check
+on:
+  pull_request:
+    types: [opened, edited, labeled, unlabeled, synchronize]
+
+jobs:
+  check:
+    runs-on: namespace-profile-ubuntu
+    if: >-
+      github.event.pull_request.user.login != 'renovate[bot]' &&
+      github.event.pull_request.user.login != 'dependabot[bot]'
+    steps:
+      - uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        env:
+          NOTION_TASK_PREFIX: ${{ vars.NOTION_TASK_PREFIX }}
+        with:
+          script: |
+            const prefix = process.env.NOTION_TASK_PREFIX;
+            if (!prefix) {
+              console.log('NOTION_TASK_PREFIX not set, skipping');
+              return;
+            }
+
+            const pr = context.payload.pull_request;
+            const labels = pr.labels.map(l => l.name);
+
+            if (labels.includes('no-task')) {
+              console.log('Skipped: no-task label present');
+              return;
+            }
+
+            const body = pr.body || '';
+            const branch = pr.head.ref;
+            const bodyPattern = new RegExp(`fix ${prefix}-\\d+`);
+            const branchPattern = new RegExp(`${prefix}-\\d+`);
+            const hasTaskId = bodyPattern.test(body) || branchPattern.test(branch);
+
+            if (!hasTaskId) {
+              core.setFailed(
+                `PR must reference a Notion task with "fix ${prefix}-XXX" in description or include ${prefix}-XXX in branch name. ` +
+                'Add "no-task" label to skip this check.'
+              );
+            }
