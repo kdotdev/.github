@@ -14,21 +14,6 @@
   ],
   "packageRules": [
     {
-      "minimumReleaseAge": "3 days",
-      "matchPackageNames": [
-        "*"
-      ]
-    },
-    {
-      "matchDepTypes": [
-        "devDependencies",
-        "action",
-        "service",
-        "required_provider"
-      ],
-      "minimumReleaseAge": "3 days"
-    },
-    {
       "matchUpdateTypes": "major",
       "addLabels": [
         "major"
